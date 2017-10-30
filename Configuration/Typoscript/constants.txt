@@ -1,0 +1,9 @@
+tx_pb_fileinfo {
+	
+	#cat=File info/typo/010;type=string;label=Wrap for fileinfo
+	wrap = <span class="pb_fileinfo">|</span>
+
+	#cat=File info/typo/020;type=options[outer,inner]; label=Fileinfo outside or within the a-tag
+	mode = outer
+
+}
