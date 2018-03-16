@@ -133,7 +133,7 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 
 		if($this->conf['mode'] == 'inner'){
 			// Remember: $reg = '#<a(.*)>(.*)</a>#siU';
-			$return = '<a' . $match[1] . '>' . $match[2] . $fileInfo . '</a>';
+			$return = '<a ' . $match[1] . '>' . $match[2] . $fileInfo . '</a>';
 		}else{
 			$return = $match[0] . $fileInfo;
 		}
