@@ -14,6 +14,8 @@ ChangeLog
 ========  ============================
 Version:  Changes:
 ========  ============================
+2.0.4     Update documentation
+--------  ----------------------------
 2.0.3     Bugifx link in inner mode
 --------  ----------------------------
 2.0.2     Small bugifx in regex
