@@ -129,11 +129,18 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 		// echo $match[0]."\n";
 
 		// Get the filesize
-		if(is_file(PATH_site . $attr_array['href'])){
-			$fileInfo = ' ' . str_replace('%s', $this->byteSize(filesize(PATH_site . $attr_array['href'])), $fileInfo);
+		$file = PATH_site . $attr_array['href'];
+
+		// Consider special characters
+		if(is_file(urldecode($file))) {
+			$file = urldecode($file);
+		}
+		if(is_file($file)){
+			$fileInfo = ' ' . str_replace('%s', $this->byteSize(filesize($file)), $fileInfo);
 		}else{
 			$fileInfo = '';
 		}
+
 
 		if($this->conf['mode'] == 'inner'){
 			// Remember: $reg = '#<a(.*)>(.*)</a>#siU';
