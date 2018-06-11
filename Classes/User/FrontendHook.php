@@ -89,6 +89,10 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 		// $linkOnly = preg_replace('#<a(.*)>(.*)</a>#siU', '<a$1></a>', $match[0]);
 		$linkOnly = preg_replace('#<a\s+(.*)>(.*)</a>#siU', '<a $1></a>', $match[0]);
 
+		// replace & with &amp; in url
+		$regEx = '#&(?!amp;)#';
+		$linkOnly = stripslashes(preg_replace($regEx, '&amp;', $linkOnly));
+		
 		$xml = simplexml_load_string($linkOnly);
 
 		if(!is_object($xml)){
@@ -175,7 +179,7 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 			$k = 'Byte';
 		}
 
-		return sprintf ('%s %s',$f, $k);
+		return sprintf ('%s&nbsp;%s',$f, $k);
 
 	}
 

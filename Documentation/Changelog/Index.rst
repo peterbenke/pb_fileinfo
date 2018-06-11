@@ -14,11 +14,13 @@ ChangeLog
 ========  ============================
 Version:  Changes:
 ========  ============================
+2.0.5     Bugfix link generation (Thanks to Heinz Schilling)
+--------  ----------------------------
 2.0.4     Update documentation
 --------  ----------------------------
-2.0.3     Bugifx link in inner mode
+2.0.3     Bugfix link in inner mode
 --------  ----------------------------
-2.0.2     Small bugifx in regex
+2.0.2     Small bugfix in regex
 --------  ----------------------------
 2.0.1     Compatibility to Version 8.7
 --------  ----------------------------
