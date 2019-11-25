@@ -1,83 +1,68 @@
 <?php
-namespace PeterBenke\PbFileinfo\User;
+namespace PeterBenke\PbFileinfo\Service;
 
-/**
- * Hook: Front end rendering
- * @author Peter Benke <info@typomotor.de>
- * @package PeterBenke\PbFileinfo\User
- */
-class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
+use TYPO3\CMS\Core\SingletonInterface;
+use \TYPO3\CMS\Core\Core\Environment;
+
+class ModifyContentService implements SingletonInterface
+{
 
 	/**
 	 * @var array
 	 */
-	protected $conf = array();
+	protected $configuration;
 
 	/**
-	 * FrontendHook constructor
+	 * Sets the configuration
+	 * @param $configuration
 	 */
-	public function __construct(){
-		$this->conf = $GLOBALS['TSFE']->tmpl->setup['tx_pb_fileinfo.'];
+	private function setConfiguration($configuration)
+	{
+		$this->configuration = $configuration;
 	}
 
-	/**
-	 * Modify content, called after caching (USER_INT)
-	 * @param array $parameters
-	 * @return void
-	 */
-	public function modifyUncachedContent(&$parameters){
-
-		if($this->conf['enable'] != '1'){
-			return;
-		}
-
-		$tsfe = &$parameters['pObj'];
-		if ($tsfe instanceof \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController) {
-			if ($tsfe->isINTincScript() === true) {
-				$this->modifyContent($tsfe->content);
-			}
-		}
-	}
 
 	/**
-	 * Modify content, called before caching
-	 * @param array $parameters
-	 * @return void
+	 * Clean the HTML with formatter
+	 * @param string $content
+	 * @param array $config Typoscript of this extension
+	 * @return string
 	 */
-	public function modifyCachedContent(&$parameters){
+	public function clean($content, $config = [])
+	{
 
-		if($this->conf['enable'] != '1'){
-			return;
+		if (empty($config) || !isset($config['enable']) || (bool)$config['enable'] === false) {
+			return $content;
 		}
+		$this->setConfiguration($config);
 
-		$tsfe = &$parameters['pObj'];
-		if ($tsfe instanceof \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController) {
-			if ($tsfe->isINTincScript() === false) {
-				$this->modifyContent($tsfe->content);
-			}
-		}
+		$content = $this->modifyContent($content);
+		return $content;
+
 	}
 
 	/**
 	 * Modifies the content
 	 * @param $content
-	 * @return void
+	 * @return string|string[]|null
 	 */
-	private function modifyContent(&$content){
+	private function modifyContent($content)
+	{
 
 		// $regExpression = '#<a(.*)>(.*)</a>#siU';
 		$regExpression = '#<a\s+(.*)>(.*)</a>#siU';
-		$content = preg_replace_callback($regExpression, 'self::addFileinfo', $content);
+		$content = preg_replace_callback($regExpression, 'self::addFileInfo', $content);
+		return $content;
 
 	}
 
 
 	/*
-	 * Adds the fileinfo
+	 * Adds the file info
 	 * @param array $match
 	 * @return string the new link
 	 */
-	private function addFileinfo($match){
+	private function addFileInfo($match){
 
 		// $match[0] => the whole match
 		// $match[1] => the first match
@@ -92,10 +77,18 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 		// replace & with &amp; in url
 		$regEx = '#&(?!amp;)#';
 		$linkOnly = stripslashes(preg_replace($regEx, '&amp;', $linkOnly));
-		
+
 		$xml = simplexml_load_string($linkOnly);
 
 		if(!is_object($xml)){
+			return $match[0];
+		}
+
+		if(
+			!isset($this->configuration['fileInfos.'])
+			||
+			!isset($this->configuration['wrap'])
+		){
 			return $match[0];
 		}
 
@@ -110,10 +103,10 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 		$fileExt = strtolower(strrchr($attr_array['href'], '.'));
 		$fileExtDefined = false;
 		$fileInfo = '';
-		foreach($this->conf['fileInfos.'] as $key => $value){
+		foreach($this->configuration['fileInfos.'] as $key => $value){
 			if($fileExt == '.' . $key){
 				$fileExtDefined = true;
-				$fileInfo = str_replace('|', $value, $this->conf['wrap']);
+				$fileInfo = str_replace('|', $value, $this->configuration['wrap']);
 				break;
 			}
 			// echo $key . '|' . $value . "<br />\n";
@@ -128,8 +121,8 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 
 		// echo $match[0]."\n";
 
-		// Get the filesize
-		$file = PATH_site . $attr_array['href'];
+		// Get the file size
+		$file = Environment::getPublicPath() . $attr_array['href'];
 
 		// Consider special characters
 		if(is_file(urldecode($file))) {
@@ -142,7 +135,7 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 		}
 
 
-		if($this->conf['mode'] == 'inner'){
+		if(isset($this->configuration['mode']) && $this->configuration['mode'] == 'inner'){
 			// Remember: $reg = '#<a(.*)>(.*)</a>#siU';
 			$return = '<a ' . $match[1] . '>' . $match[2] . $fileInfo . '</a>';
 		}else{
@@ -154,25 +147,25 @@ class FrontendHook implements \TYPO3\CMS\Core\SingletonInterface{
 	}
 
 	/*
-	 * Returns a formatted filesize
-	 * @param string unformatted filesize
-	 * @return string formatted filesize
-	 */
+ * Returns a formatted file size
+ * @param string not formatted file size
+ * @return string formatted file size
+ */
 	private function byteSize($bytes){
 
 		if (!is_int($bytes) || $bytes < 0){
 			return false;
 		}
 
-		$map = array(
-			// 'GB' => array(1073741824, 1),
-			'GB' => array(1024000000, 1),
-			// 'MB' => array(1048576, 2),
-			'MB' => array(1024000, 2),
-			'KB' => array(1024, 2),
-			'Bytes' => array(1, 0),
-		);
+		$map = [
+			'GB' => [1024000000, 1],
+			'MB' => [1024000, 2],
+			'KB' => [1024, 2],
+			'Bytes' => [1, 0],
+		];
 
+		$v = 1;
+		$k = '';
 		foreach($map as $k => $v){
 			if ($bytes >= $v[0]){
 				break;

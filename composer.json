@@ -17,11 +17,9 @@
       "homepage": "http://www.typomotor.de"
     }
   ],
-  "license": [
-    "GPL-2.0+"
-  ],
   "require": {
-    "typo3/cms-core": ">=6.2.0 <=8.7.99"
+    "php": ">=7.2.0",
+    "typo3/cms-core": "~9.5.0||dev-master"
   },
   "autoload": {
     "psr-4": {

@@ -1,0 +1,49 @@
+config.pb_fileinfo {
+	
+	enable = 1
+	wrap = {$pb_fileinfo.wrap}
+	# inner: within the a-tag
+	# outer: outside the a-tag
+	mode = {$pb_fileinfo.mode}
+	fileInfos{
+		# on the left-side: file-extension
+		# %s is the placeholder for the filesize
+		pdf = (Pdf-file, %s)
+		doc = (Word-file, %s)
+		xls = (Excel-file, %s)
+		zip = (Zip-file, %s)
+		mp3 = (MP3-file, %s)
+		mp4 = (MP4-file, %s)
+	}
+
+}
+[siteLanguage("languageId") == "0"]
+	config.pb_fileinfo {
+
+		fileInfos{
+			pdf = (Pdf-Datei, %s)
+			doc = (Word-Datei, %s)
+			xls = (Excel-Datei, %s)
+			zip = (Zip-Datei, %s)
+			mp3 = (MP3-Datei, %s)
+			mp4 = (MP4-Datei, %s)
+		}
+
+	}
+[END]
+
+[siteLanguage("languageId") == "1"]
+	config.pb_fileinfo {
+
+		fileInfos{
+			pdf = (Pdf-file, %s)
+			doc = (Word-file, %s)
+			xls = (Excel-file, %s)
+			zip = (Zip-file, %s)
+			mp3 = (MP3-file, %s)
+			mp4 = (MP4-file, %s)
+		}
+
+	}
+[END]
+
