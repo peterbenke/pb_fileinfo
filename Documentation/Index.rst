@@ -29,7 +29,7 @@ File info
         file, size, info, filesize, fileinfo
 
     :Copyright:
-        2019
+        2021
 
     :Author:
         Peter Benke

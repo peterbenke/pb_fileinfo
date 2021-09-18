@@ -1,9 +1,15 @@
 <?php
 namespace PeterBenke\PbFileinfo\Service;
 
+/**
+ * TYPO3
+ */
 use TYPO3\CMS\Core\SingletonInterface;
-use \TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Core\Environment;
 
+/**
+ * ModifyContentService
+ */
 class ModifyContentService implements SingletonInterface
 {
 
@@ -21,23 +27,22 @@ class ModifyContentService implements SingletonInterface
 		$this->configuration = $configuration;
 	}
 
-
 	/**
 	 * Clean the HTML with formatter
 	 * @param string $content
-	 * @param array $config Typoscript of this extension
+	 * @param array|null $config Typoscript of this extension
 	 * @return string
 	 */
-	public function clean($content, $config = [])
+	public function clean(string $content, ?array $config = [])
 	{
 
 		if (empty($config) || !isset($config['enable']) || (bool)$config['enable'] === false) {
 			return $content;
 		}
+
 		$this->setConfiguration($config);
 
-		$content = $this->modifyContent($content);
-		return $content;
+		return $this->modifyContent($content);
 
 	}
 
@@ -49,30 +54,28 @@ class ModifyContentService implements SingletonInterface
 	private function modifyContent($content)
 	{
 
-		// $regExpression = '#<a(.*)>(.*)</a>#siU';
 		$regExpression = '#<a\s+(.*)>(.*)</a>#siU';
-		$content = preg_replace_callback($regExpression, 'self::addFileInfo', $content);
-		return $content;
+		return preg_replace_callback($regExpression, 'self::addFileInfo', $content);
 
 	}
 
-
-	/*
+	/**
 	 * Adds the file info
-	 * @param array $match
-	 * @return string the new link
+	 * @param array|null $match
+	 * @return string
 	 */
-	private function addFileInfo($match){
+	private function addFileInfo(?array $match): string
+	{
 
 		// $match[0] => the whole match
 		// $match[1] => the first match
 		// $match[2] => ...
 
-		// echo $match[0]."\n";
-
-		// Get only the link, because HTML-Entities inside of the a-tag can cause errors
+		// Get only the link, because HTML-Entities inside the a-tag can cause errors
 		// $linkOnly = preg_replace('#<a(.*)>(.*)</a>#siU', '<a$1></a>', $match[0]);
 		$linkOnly = preg_replace('#<a\s+(.*)>(.*)</a>#siU', '<a $1></a>', $match[0]);
+
+
 
 		// replace & with &amp; in url
 		$regEx = '#&(?!amp;)#';
@@ -92,15 +95,18 @@ class ModifyContentService implements SingletonInterface
 			return $match[0];
 		}
 
-		// Get the link-attribiutes as an array
+		// print_r(['match' => $match, '$linkOnly' => $linkOnly]);
+
+		// Get the link-attributes as an array
 		$attr_object	= $xml->attributes();
 		$attr_array		= (array)$attr_object;
 		$attr_array		= $attr_array['@attributes'];
 
-		// print_r($attr_array);
-
-		// Only internal Links, with fileextension defined in typoscript
+		// Only internal Links, with file extension defined in typoscript
 		$fileExt = strtolower(strrchr($attr_array['href'], '.'));
+
+		// print_r(['$attr_array' => $attr_array, '$this->configuration' => $this->configuration, '$fileExt' => $fileExt]);
+
 		$fileExtDefined = false;
 		$fileInfo = '';
 		foreach($this->configuration['fileInfos.'] as $key => $value){
@@ -128,12 +134,23 @@ class ModifyContentService implements SingletonInterface
 		if(is_file(urldecode($file))) {
 			$file = urldecode($file);
 		}
+		// echo $file ."\n";
 		if(is_file($file)){
-			$fileInfo = ' ' . str_replace('%s', $this->byteSize(filesize($file)), $fileInfo);
+			$fileInfo = str_replace('%s', $this->byteSize(filesize($file)), $fileInfo);
 		}else{
 			$fileInfo = '';
 		}
 
+		/*
+		if($fileExt == '.pdf'){
+			print_r([
+				'$match' => $match,
+				'$fileInfo' => $fileInfo,
+				'filesize 1' => filesize($file),
+				'filesize 2' => $this->byteSize(filesize($file)),
+			]);
+		}
+		*/
 
 		if(isset($this->configuration['mode']) && $this->configuration['mode'] == 'inner'){
 			// Remember: $reg = '#<a(.*)>(.*)</a>#siU';
@@ -146,12 +163,15 @@ class ModifyContentService implements SingletonInterface
 
 	}
 
-	/*
- * Returns a formatted file size
- * @param string not formatted file size
- * @return string formatted file size
- */
-	private function byteSize($bytes){
+	/**
+	 * Returns a formatted file size
+	 * @param string|int $bytes not formatted file size
+	 * @return false|string formatted file size
+	 */
+	private function byteSize(string $bytes)
+	{
+
+		$bytes = intval($bytes);
 
 		if (!is_int($bytes) || $bytes < 0){
 			return false;

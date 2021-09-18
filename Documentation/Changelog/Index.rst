@@ -14,6 +14,8 @@ ChangeLog
 ========  ============================
 Version:  Changes:
 ========  ============================
+10.4.0     Compatibility to Version 10.4.0
+--------  ----------------------------
 3.0.0     Compatibility to Version 9.5
 --------  ----------------------------
 2.0.6     Consider special characters in filenames

@@ -4,8 +4,8 @@
 
 ---
 conf.py:
-  copyright: 2019
+  copyright: 2021
   project: File info
-  version: 3.0
-  release: 3.0.0
+  version: 10.4.0
+  release: 10.4.0
 ...
