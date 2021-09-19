@@ -168,7 +168,7 @@ class ModifyContentService implements SingletonInterface
 	 * @param string|int $bytes not formatted file size
 	 * @return false|string formatted file size
 	 */
-	private function byteSize(string $bytes)
+	private function byteSize($bytes)
 	{
 
 		$bytes = intval($bytes);
