@@ -57,8 +57,6 @@ class ModifyContentMiddleware implements MiddlewareInterface
 			!($response instanceof NullResponse)
 			&&
 			$GLOBALS['TSFE'] instanceof TypoScriptFrontendController
-			&&
-			$GLOBALS['TSFE']->isOutputting()
 		) {
 
 			$modifiedHtml = $this->modifyContentService->clean(

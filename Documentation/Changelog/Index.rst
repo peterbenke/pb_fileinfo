@@ -14,6 +14,8 @@ ChangeLog
 ========  ============================
 Version:  Changes:
 ========  ============================
+11.5.0     Compatibility to Version 11.5.0
+--------  ----------------------------
 10.4.0     Compatibility to Version 10.4.0
 --------  ----------------------------
 3.0.0     Compatibility to Version 9.5
