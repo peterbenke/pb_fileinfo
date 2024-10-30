@@ -3,8 +3,6 @@
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. include:: Includes.txt
-
 .. _start:
 
 =========
@@ -48,14 +46,6 @@ File info
     a GNU/GPL CMS/Framework available from `www.typo3.org <https://typo3.org/>`__.
 
 
-    **Table of Contents**
+    **Documentation**
 
-.. toctree::
-    :maxdepth: 3
-    :titlesonly:
-
-    Introduction/Index
-    Administration/Index
-    Configuration/Index
-    KnownProblems/Index
-    Changelog/Index
+	See documentation on `github <https://github.com/peterbenke/pb_fileinfo>`__.
