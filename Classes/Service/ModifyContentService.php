@@ -9,16 +9,14 @@ namespace PeterBenke\PbFileinfo\Service;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Core\Environment;
 
-/**
- * ModifyContentService
- */
+
 class ModifyContentService implements SingletonInterface
 {
 
     /**
      * @var array|null
      */
-    protected ?array $configuration;
+    protected ?array $configuration = null;
 
     /**
      * Sets the configuration
@@ -57,7 +55,7 @@ class ModifyContentService implements SingletonInterface
     {
 
         $regExpression = '#<a\s+(.*)>(.*)</a>#siU';
-        return preg_replace_callback($regExpression, 'self::addFileInfo', $content);
+        return preg_replace_callback($regExpression, self::addFileInfo(...), (string) $content);
 
     }
 
@@ -75,7 +73,8 @@ class ModifyContentService implements SingletonInterface
 
         // Get only the link, because HTML-Entities inside the a-tag can cause errors
         // $linkOnly = preg_replace('#<a(.*)>(.*)</a>#siU', '<a$1></a>', $match[0]);
-        $linkOnly = preg_replace('#<a\s+(.*)>(.*)</a>#siU', '<a $1></a>', $match[0]);
+        // $linkOnly = preg_replace('#<a\s+(.*)>(.*)</a>#siU', '<a $1></a>', (string) $match[0]);
+        $linkOnly = preg_replace('#<a\s+(.*)>(.*)</a>#siU', /** @lang text */'<a $1></a>', (string) $match[0]);
 
 
         // replace & with &amp; in url
@@ -104,14 +103,14 @@ class ModifyContentService implements SingletonInterface
         $attr_array = $attr_array['@attributes'];
 
         // Only internal Links, with file extension defined in typoscript
-        $fileExt = strtolower(strrchr($attr_array['href'], '.'));
+        $fileExt = strtolower(strrchr((string) $attr_array['href'], '.'));
 
         // print_r(['$attr_array' => $attr_array, '$this->configuration' => $this->configuration, '$fileExt' => $fileExt]);
 
         $fileExtDefined = false;
         $fileInfo = '';
         foreach ($this->configuration['fileInfos.'] as $key => $value) {
-            if ($fileExt == '.' . $key) {
+            if ($fileExt === '.' . $key) {
                 $fileExtDefined = true;
                 $fileInfo = str_replace('|', $value, $this->configuration['wrap']);
                 break;
@@ -119,7 +118,7 @@ class ModifyContentService implements SingletonInterface
             // echo $key . '|' . $value . "<br />\n";
         }
         if (
-            preg_match('#^http#', $attr_array['href'])
+            str_starts_with((string)$attr_array['href'], 'http')
             ||
             !$fileExtDefined
         ) {
@@ -174,7 +173,7 @@ class ModifyContentService implements SingletonInterface
 
         $bytes = intval($bytes);
 
-        if (!is_int($bytes) || $bytes < 0) {
+        if ($bytes <= 0) {
             return false;
         }
 
@@ -185,8 +184,6 @@ class ModifyContentService implements SingletonInterface
             'Bytes' => [1, 0],
         ];
 
-        $v = 1;
-        $k = '';
         foreach ($map as $k => $v) {
             if ($bytes >= $v[0]) {
                 break;
